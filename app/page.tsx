@@ -14,12 +14,15 @@ import { ParallaxImage } from "@/components/parallax-image";
 import { TextReveal } from "@/components/text-reveal";
 import { AnimatedCursor } from "@/components/animated-cursor";
 import { FadeIn, SlideIn, ScaleIn } from "@/components/motion-components";
+import { X, Menu } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 
 const playfair = Playfair_Display({ subsets: ["latin"] });
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -36,6 +39,18 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,8 +135,24 @@ export default function Home() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex space-x-8">
+        <div className="flex items-center justify-between relative">
+          {/* Mobile Menu Button */}
+          <motion.button
+            className="md:hidden z-20 p-2"
+            onClick={() => setIsOpen(!isOpen)}
+            whileTap={{ scale: 0.9 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {isOpen ? (
+              <X className="h-6 w-6 text-[#8a8a6d]" />
+            ) : (
+              <Menu className="h-6 w-6 text-[#8a8a6d]" />
+            )}
+          </motion.button>
+
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex space-x-8">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -216,6 +247,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div
+            className="hidden md:block"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
@@ -236,6 +268,74 @@ export default function Home() {
             </Link>
           </motion.div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              className="fixed inset-0 z-10 bg-[#f5f5e6]/95 backdrop-blur-sm md:hidden pt-20"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
+                {[
+                  { name: "Home", href: "/" },
+                  { name: "Where To Go", href: "/where-to-go" },
+                  { name: "Events", href: "/events" },
+                  { name: "Map", href: "/map" },
+                  { name: "Blog", href: "/blog" },
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <Link
+                      href={item.href}
+                      className="font-medium relative group"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                      <motion.span
+                        className="absolute -bottom-2 left-0 w-full h-0.5 bg-[#8a8a6d]"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 0.3, delay: index * 0.1 + 0.3 }}
+                      />
+                    </Link>
+                  </motion.div>
+                ))}
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="pt-4"
+                >
+                  <Link
+                    href="/work-with-us"
+                    className="relative overflow-hidden border border-[#8a8a6d] bg-[#e0e4c4] px-6 py-3 text-base font-medium uppercase tracking-wider group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <motion.span
+                      className="absolute inset-0 bg-[#8a8a6d] z-0"
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: 0 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+                      Work With Us
+                    </span>
+                  </Link>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       {/* Hero Section */}
@@ -245,7 +345,7 @@ export default function Home() {
       >
         {/* Left side - Image */}
         <motion.div
-          className="bg-[#e0e4c4] flex items-center justify-center p-8"
+          className="bg-[#e0e4c4] flex items-center justify-center p-4 md:p-8 order-2 md:order-1"
           style={{ opacity, scale }}
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -268,13 +368,13 @@ export default function Home() {
 
         {/* Right side - Text */}
         <motion.div
-          className="flex flex-col justify-center p-12"
+          className="flex flex-col justify-center p-6 md:p-12 order-1 md:order-2"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
         >
           <h1
-            className={`${playfair.className} text-6xl md:text-7xl lg:text-8xl font-bold leading-[0.9] mb-8`}
+            className={`${playfair.className} text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[0.9] mb-8`}
           >
             <TextReveal delay={0.8}>CLEVELAND</TextReveal>
             <TextReveal delay={1.0}>
@@ -287,7 +387,7 @@ export default function Home() {
           </h1>
 
           <TextReveal delay={1.6}>
-            <p className="text-base md:text-lg mt-4 max-w-xl">
+            <p className="text-sm sm:text-base md:text-lg mt-4 max-w-xl">
               Cleveland's go-to lifestyle platform spotlighting where to go,
               what to eat, who to know, and why it all matters. For people who
               love this city on purpose.
@@ -295,7 +395,7 @@ export default function Home() {
           </TextReveal>
 
           <TextReveal delay={1.8}>
-            <div className="mt-12">
+            <div className="mt-8 md:mt-12">
               <AnimatedButton href="/where-to-go">
                 Explore Cleveland
               </AnimatedButton>
