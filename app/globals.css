@@ -61,3 +61,48 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f5e6; /* Same as site background */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8a8a6d; /* Dark green accent color */
+  border-radius: 8px;
+  border: 3px solid #f5f5e6; /* Creates padding effect */
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6d6d57; /* Darker shade on hover */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8a8a6d #f5f5e6;
+}
+
+/* Smooth scrolling for the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Add progress indicator for scroll position */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #8a8a6d;
+  z-index: 9999;
+  width: var(--scroll);
+  transition: width 0.1s ease;
+}

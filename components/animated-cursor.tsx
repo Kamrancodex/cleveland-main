@@ -1,65 +1,63 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 export function AnimatedCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [cursorVariant, setCursorVariant] = useState("default")
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const mouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX,
-        y: e.clientY,
-      })
-    }
+    // Show cursor after a short delay
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 1000);
 
-    const mouseEnterLink = () => setCursorVariant("link")
-    const mouseLeaveLink = () => setCursorVariant("default")
+    const updateMousePosition = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
 
-    window.addEventListener("mousemove", mouseMove)
-
-    const links = document.querySelectorAll("a, button")
-    links.forEach((link) => {
-      link.addEventListener("mouseenter", mouseEnterLink)
-      link.addEventListener("mouseleave", mouseLeaveLink)
-    })
+    window.addEventListener("mousemove", updateMousePosition);
 
     return () => {
-      window.removeEventListener("mousemove", mouseMove)
-      links.forEach((link) => {
-        link.removeEventListener("mouseenter", mouseEnterLink)
-        link.removeEventListener("mouseleave", mouseLeaveLink)
-      })
-    }
-  }, [])
+      window.removeEventListener("mousemove", updateMousePosition);
+      clearTimeout(timer);
+    };
+  }, []);
 
-  const variants = {
-    default: {
-      x: mousePosition.x - 8,
-      y: mousePosition.y - 8,
-      height: 16,
-      width: 16,
-      backgroundColor: "rgba(224, 228, 196, 0.5)",
-      mixBlendMode: "difference" as const,
-    },
-    link: {
-      x: mousePosition.x - 16,
-      y: mousePosition.y - 16,
-      height: 32,
-      width: 32,
-      backgroundColor: "rgba(224, 228, 196, 0.8)",
-      mixBlendMode: "difference" as const,
-    },
-  }
+  if (!isVisible) return null;
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 z-50 rounded-full pointer-events-none hidden md:block"
-      variants={variants}
-      animate={cursorVariant}
-      transition={{ type: "spring", stiffness: 500, damping: 28 }}
-    />
-  )
+    <>
+      {/* Larger outer cursor */}
+      <motion.div
+        className="fixed top-0 left-0 w-10 h-10 rounded-full border border-[#8a8a6d] pointer-events-none z-50 hidden md:block"
+        animate={{
+          x: mousePosition.x - 20,
+          y: mousePosition.y - 20,
+        }}
+        transition={{
+          type: "spring",
+          damping: 30,
+          stiffness: 200,
+          mass: 0.5,
+        }}
+      />
+
+      {/* Smaller inner cursor */}
+      <motion.div
+        className="fixed top-0 left-0 w-3 h-3 bg-[#8a8a6d] rounded-full pointer-events-none z-50 hidden md:block"
+        animate={{
+          x: mousePosition.x - 6,
+          y: mousePosition.y - 6,
+        }}
+        transition={{
+          type: "spring",
+          damping: 15,
+          stiffness: 150,
+          mass: 0.2,
+        }}
+      />
+    </>
+  );
 }

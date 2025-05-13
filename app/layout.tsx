@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-// import { Footer } from "@/components/footer";
+import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ScrollProgressProvider } from "@/components/scroll-progress-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,7 +14,6 @@ export const metadata: Metadata = {
   title: "Cleveland Vibes | Your Hype Person for All Things 216",
   description:
     "Cleveland's go-to lifestyle platform spotlighting where to go, what to eat, who to know, and why it all matters in the 216.",
-  generator: "v0.dev",
 };
 
 export default function RootLayout({
@@ -29,8 +30,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          {/* <Footer /> */}
+          <ScrollProgressProvider>
+            <Navigation />
+            {children}
+            <Footer />
+          </ScrollProgressProvider>
         </ThemeProvider>
       </body>
     </html>

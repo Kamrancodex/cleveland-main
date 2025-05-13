@@ -1,47 +1,61 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { motion } from "framer-motion"
-import Link from "next/link"
+import Link from "next/link";
+import { ReactNode } from "react";
+import { motion } from "framer-motion";
 
 interface AnimatedButtonProps {
-  href: string
-  children: React.ReactNode
-  className?: string
+  children: ReactNode;
+  href: string;
+  className?: string;
 }
 
-export function AnimatedButton({ href, children, className = "" }: AnimatedButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
+export function AnimatedButton({
+  children,
+  href,
+  className = "",
+}: AnimatedButtonProps) {
   return (
-    <Link href={href} passHref>
+    <Link href={href}>
       <motion.div
-        className={`relative inline-block ${className}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.98 }}
+        className={`relative inline-block overflow-hidden bg-[#8a8a6d] text-white px-8 py-4 ${className}`}
+        whileHover="hover"
+        whileTap="tap"
       >
-        <motion.div
-          className="absolute inset-0 bg-[#8a8a6d] rounded-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-          style={{ zIndex: -1 }}
-        />
-        <motion.div
-          className="border border-[#8a8a6d] bg-[#e0e4c4] px-8 py-4 text-sm font-medium uppercase tracking-wider transition-colors"
-          animate={{
-            backgroundColor: isHovered ? "#8a8a6d" : "#e0e4c4",
-            color: isHovered ? "#ffffff" : "#000000",
+        <motion.span
+          className="relative z-10 inline-block font-medium"
+          variants={{
+            hover: { y: 0 },
+            tap: { y: 0 },
           }}
-          transition={{ duration: 0.3 }}
         >
           {children}
-        </motion.div>
+        </motion.span>
+
+        {/* Background hover effect */}
+        <motion.span
+          className="absolute inset-0 bg-[#e0e4c4]"
+          initial={{ x: "-100%" }}
+          variants={{
+            hover: { x: 0 },
+            tap: { scale: 0.98 },
+          }}
+          transition={{ duration: 0.3 }}
+        />
+
+        {/* Text color change with background */}
+        <motion.span
+          className="absolute inset-0 z-20 flex items-center justify-center font-medium text-[#8a8a6d]"
+          initial={{ opacity: 0 }}
+          variants={{
+            hover: { opacity: 1 },
+            tap: { opacity: 1 },
+          }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.span>
       </motion.div>
     </Link>
-  )
+  );
 }
